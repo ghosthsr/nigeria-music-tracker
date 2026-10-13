@@ -1,0 +1,26 @@
+name: Daily Spotify Music Scraper
+
+on:
+  schedule:
+    - cron: '0 8 * * *' # Runs automatically every single day at 9:00 AM WAT (Nigerian Time)
+  workflow_dispatch: # Gives you a button to click and run it manually whenever you want
+
+jobs:
+  run-scraper:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # Allows the server to save the CSV file back into your account
+    steps:
+    - name: Checkout repository code
+      uses: actions/checkout@v4
+
+    - name: Run Script
+      run: python spotify_tracker.py
+
+    - name: Save Database Changes
+      run: |
+        git config --global user.name "Database Bot"
+        git config --global user.email "bot@github.com"
+        git add nigeria_spotify_daily_database.csv
+        git commit -m "Automated Daily Update: $(date +'%Y-%m-%d')" || exit 0
+        git push
